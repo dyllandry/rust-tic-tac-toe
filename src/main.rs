@@ -1,9 +1,15 @@
 fn main() {
     let mut board = Board::new();
-    board.cells[0].player = Some(Player::P1);
-    board.cells[1].player = Some(Player::P1);
-    board.cells[2].player = Some(Player::P1);
+    board.mark_cell(1, Player::P1);
+    board.mark_cell(0, Player::P2);
+    board.mark_cell(2, Player::P1);
+    board.mark_cell(4, Player::P2);
+    board.mark_cell(5, Player::P1);
+    board.mark_cell(8, Player::P2);
     println!("{}", board);
+    if let Some(winning_player) = board.winning_player() {
+        println!("{} won!", winning_player);
+    }
 }
 
 struct Board {
@@ -17,9 +23,55 @@ impl Board {
             index: 0,
         }; 9];
         for i in 0..9 {
-            cells[i].index = i as i32;
+            cells[i].index = i;
         }
         return Board { cells };
+    }
+
+    fn mark_cell(&mut self, cell: usize, player: Player) {
+        self.cells[cell].player = Some(player);
+    }
+
+    fn is_players_turn(&self, player: Player) -> bool {
+        let filled_cells = self
+            .cells
+            .iter()
+            .map(|cell| cell.player)
+            .filter_map(std::convert::identity)
+            .count();
+        let is_p1_turn = (filled_cells % 2) == 0;
+        match player {
+            Player::P1 => is_p1_turn,
+            Player::P2 => !is_p1_turn,
+        }
+    }
+
+    fn winning_player(&self) -> Option<Player> {
+        fn player_won(board: &Board, player_to_check: Player) -> bool {
+            let possible_winning_lines: [[usize; 3]; 8] = [
+                [0, 1, 2], // top row
+                [3, 4, 5], // middle row
+                [6, 7, 8], // bottom row
+                [0, 3, 6], // left column
+                [1, 4, 7], // middle column
+                [2, 5, 8], // right column
+                [0, 4, 8], // diagonal top left to bottom right
+                [2, 4, 6], // diagonal top right to bottom left
+            ];
+            possible_winning_lines.iter().any(|line| {
+                line.iter().all(|cell| match board.cells[*cell].player {
+                    Some(player_in_cell) => player_in_cell == player_to_check,
+                    _ => false,
+                })
+            })
+        }
+        if player_won(self, Player::P1) {
+            Some(Player::P1)
+        } else if player_won(self, Player::P2) {
+            Some(Player::P2)
+        } else {
+            None
+        }
     }
 }
 
@@ -50,7 +102,7 @@ impl std::fmt::Display for Board {
 #[derive(Clone, Copy)]
 struct Cell {
     player: Option<Player>,
-    index: i32,
+    index: usize,
 }
 
 impl std::fmt::Display for Cell {
@@ -66,8 +118,73 @@ impl std::fmt::Display for Cell {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 enum Player {
     P1,
     P2,
+}
+
+impl std::fmt::Display for Player {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let player_number = match self {
+            Player::P1 => 1,
+            Player::P2 => 2,
+        };
+        write!(f, "Player {}", player_number)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    mod is_players_turn_tests {
+        use crate::*;
+
+        #[test]
+        fn returns_true_when_it_is_the_passed_players_turn() {
+            let mut board = Board::new();
+            board.mark_cell(0, Player::P1);
+            board.mark_cell(1, Player::P2);
+            assert!(board.is_players_turn(Player::P1));
+        }
+
+        #[test]
+        fn returns_false_when_it_is_not_the_passed_players_turn() {
+            let mut board = Board::new();
+            board.mark_cell(0, Player::P1);
+            assert!(board.is_players_turn(Player::P2));
+        }
+    }
+
+    mod winning_player_tests {
+        use crate::*;
+
+        #[test]
+        fn returns_player1_if_they_won() {
+            let mut board = Board::new();
+            board.mark_cell(0, Player::P1);
+            board.mark_cell(1, Player::P1);
+            board.mark_cell(2, Player::P1);
+            let winning_player = board.winning_player().unwrap();
+            assert!(matches!(winning_player, Player::P1));
+        }
+
+        #[test]
+        fn returns_player2_if_they_won() {
+            let mut board = Board::new();
+            board.mark_cell(0, Player::P2);
+            board.mark_cell(1, Player::P2);
+            board.mark_cell(2, Player::P2);
+            let winning_player = board.winning_player().unwrap();
+            assert!(matches!(winning_player, Player::P2));
+        }
+
+        #[test]
+        fn returns_none_if_no_one_won() {
+            let mut board = Board::new();
+            board.mark_cell(0, Player::P1);
+            board.mark_cell(1, Player::P2);
+            let winning_player = board.winning_player();
+            assert!(matches!(winning_player, None));
+        }
+    }
 }
