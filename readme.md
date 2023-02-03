@@ -13,4 +13,5 @@ I made an [issue](https://github.com/vim-test/vim-test/issues/708) for this in t
 - Game loop
 	- Keeps grabbing input until someone wins
 - Read input from system and give to board
+		- turns character 1 into "MarkCell1" and gives to the TicTacToe game
 
