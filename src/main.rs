@@ -1,39 +1,37 @@
 fn main() {
-    let mut board = Board::new();
-    board.mark_cell(1, Player::P1);
-    board.mark_cell(0, Player::P2);
-    board.mark_cell(2, Player::P1);
-    board.mark_cell(4, Player::P2);
-    board.mark_cell(5, Player::P1);
-    board.mark_cell(8, Player::P2);
-    println!("{}", board);
-    if let Some(winning_player) = board.winning_player() {
+    let mut game = TicTacToe::new();
+    game.mark_cell(1, Player::P1);
+    game.mark_cell(0, Player::P2);
+    game.mark_cell(2, Player::P1);
+    game.mark_cell(4, Player::P2);
+    game.mark_cell(5, Player::P1);
+    game.mark_cell(8, Player::P2);
+
+    println!("{}", game);
+
+    if let Some(winning_player) = game.winning_player() {
         println!("{} won!", winning_player);
     }
 }
 
-struct Board {
-    cells: [Cell; 9],
+struct TicTacToe {
+    board: Board,
 }
 
-impl Board {
-    fn new() -> Self {
-        let mut cells: [Cell; 9] = [Cell {
-            player: None,
-            index: 0,
-        }; 9];
-        for i in 0..9 {
-            cells[i].index = i;
+impl TicTacToe {
+    pub fn new() -> Self {
+        TicTacToe {
+            board: Board::new(),
         }
-        return Board { cells };
     }
 
-    fn mark_cell(&mut self, cell: usize, player: Player) {
-        self.cells[cell].player = Some(player);
+    pub fn mark_cell(&mut self, cell: usize, player: Player) {
+        self.board.cells[cell].player = Some(player);
     }
 
-    fn is_players_turn(&self, player: Player) -> bool {
+    pub fn is_players_turn(&self, player: Player) -> bool {
         let filled_cells = self
+            .board
             .cells
             .iter()
             .map(|cell| cell.player)
@@ -46,7 +44,7 @@ impl Board {
         }
     }
 
-    fn winning_player(&self) -> Option<Player> {
+    pub fn winning_player(&self) -> Option<Player> {
         fn player_won(board: &Board, player_to_check: Player) -> bool {
             let possible_winning_lines: [[usize; 3]; 8] = [
                 [0, 1, 2], // top row
@@ -65,13 +63,36 @@ impl Board {
                 })
             })
         }
-        if player_won(self, Player::P1) {
+        if player_won(&self.board, Player::P1) {
             Some(Player::P1)
-        } else if player_won(self, Player::P2) {
+        } else if player_won(&self.board, Player::P2) {
             Some(Player::P2)
         } else {
             None
         }
+    }
+}
+
+impl std::fmt::Display for TicTacToe {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "{}", self.board)
+    }
+}
+
+struct Board {
+    cells: [Cell; 9],
+}
+
+impl Board {
+    fn new() -> Self {
+        let mut cells: [Cell; 9] = [Cell {
+            player: None,
+            index: 0,
+        }; 9];
+        for i in 0..9 {
+            cells[i].index = i;
+        }
+        return Board { cells };
     }
 }
 
@@ -141,17 +162,17 @@ mod tests {
 
         #[test]
         fn returns_true_when_it_is_the_passed_players_turn() {
-            let mut board = Board::new();
-            board.mark_cell(0, Player::P1);
-            board.mark_cell(1, Player::P2);
-            assert!(board.is_players_turn(Player::P1));
+            let mut game = TicTacToe::new();
+            game.mark_cell(0, Player::P1);
+            game.mark_cell(1, Player::P2);
+            assert!(game.is_players_turn(Player::P1));
         }
 
         #[test]
         fn returns_false_when_it_is_not_the_passed_players_turn() {
-            let mut board = Board::new();
-            board.mark_cell(0, Player::P1);
-            assert!(board.is_players_turn(Player::P2));
+            let mut game = TicTacToe::new();
+            game.mark_cell(0, Player::P1);
+            assert!(game.is_players_turn(Player::P2));
         }
     }
 
@@ -160,30 +181,30 @@ mod tests {
 
         #[test]
         fn returns_player1_if_they_won() {
-            let mut board = Board::new();
-            board.mark_cell(0, Player::P1);
-            board.mark_cell(1, Player::P1);
-            board.mark_cell(2, Player::P1);
-            let winning_player = board.winning_player().unwrap();
+            let mut game = TicTacToe::new();
+            game.mark_cell(0, Player::P1);
+            game.mark_cell(1, Player::P1);
+            game.mark_cell(2, Player::P1);
+            let winning_player = game.winning_player().unwrap();
             assert!(matches!(winning_player, Player::P1));
         }
 
         #[test]
         fn returns_player2_if_they_won() {
-            let mut board = Board::new();
-            board.mark_cell(0, Player::P2);
-            board.mark_cell(1, Player::P2);
-            board.mark_cell(2, Player::P2);
-            let winning_player = board.winning_player().unwrap();
+            let mut game = TicTacToe::new();
+            game.mark_cell(0, Player::P2);
+            game.mark_cell(1, Player::P2);
+            game.mark_cell(2, Player::P2);
+            let winning_player = game.winning_player().unwrap();
             assert!(matches!(winning_player, Player::P2));
         }
 
         #[test]
         fn returns_none_if_no_one_won() {
-            let mut board = Board::new();
-            board.mark_cell(0, Player::P1);
-            board.mark_cell(1, Player::P2);
-            let winning_player = board.winning_player();
+            let mut game = TicTacToe::new();
+            game.mark_cell(0, Player::P1);
+            game.mark_cell(1, Player::P2);
+            let winning_player = game.winning_player();
             assert!(matches!(winning_player, None));
         }
     }
