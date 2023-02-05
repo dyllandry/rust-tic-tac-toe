@@ -20,10 +20,18 @@ impl TicTacToe {
     }
 
     pub fn render(&self) {
+        println!();
         self.board.render();
         if let Some(winner) = self.winning_player() {
+            println!();
             println!("{} won!", winner);
+        } else {
+            println!();
+            print!("{} pick a cell 1-9: ", self.player_with_current_turn());
         }
+        // Output to stdout is line-buffered. Flushing buffer ensures output is emitted
+        // immediately.
+        std::io::Write::flush(&mut std::io::stdout()).unwrap();
     }
 
     pub fn game_over(&self) -> bool {

@@ -13,6 +13,8 @@ fn main() {
             if let Some(input) = get_user_input() {
                 game.input(input)
             }
+        } else {
+            break;
         }
     }
 }
