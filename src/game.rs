@@ -1,3 +1,5 @@
+use crate::user_input::Input;
+
 pub struct TicTacToe {
     board: Board,
 }
@@ -9,10 +11,33 @@ impl TicTacToe {
         }
     }
 
+    pub fn input(&mut self, input: Input) {
+        match input {
+            Input::MarkCell(cell) => {
+                self.mark_cell(cell, self.player_with_current_turn());
+            }
+        }
+    }
+
     /// Might be made private. Idea is that game receives input and decides what
     /// should happen.
     pub fn mark_cell(&mut self, cell: usize, player: Player) {
         self.board.cells[cell].player = Some(player);
+    }
+
+    fn player_with_current_turn(&self) -> Player {
+        let filled_cells = self
+            .board
+            .cells
+            .iter()
+            .map(|cell| cell.player)
+            .filter_map(std::convert::identity)
+            .count();
+        if (filled_cells % 2) == 0 {
+            Player::P1
+        } else {
+            Player::P2
+        }
     }
 
     pub fn is_players_turn(&self, player: Player) -> bool {

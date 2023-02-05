@@ -11,7 +11,7 @@ I made an [issue](https://github.com/vim-test/vim-test/issues/708) for this in t
 - Module for game state & logic
 	- This is the TicTacToe structure
 - Game loop
-	- Keeps grabbing input until someone wins
-- Read input from system and give to board
-		- turns character 1 into "MarkCell1" and gives to the TicTacToe game
+	- Keeps giving input to game until game is over, then closes
+- Read input from system
+	- this is the user_input system
 
