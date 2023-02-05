@@ -30,25 +30,28 @@ impl TicTacToe {
 
         println!();
         self.board.render();
+        println!();
+
         if let Some(winner) = self.winning_player() {
-            println!();
             println!("{} won!", winner);
+        } else if self.tie() {
+            println!("It's a tie!");
         } else {
-            println!();
             print!("{} pick a cell 1-9: ", self.player_with_current_turn());
         }
+
         // Output to stdout is line-buffered. Flushing buffer ensures output is emitted
         // immediately.
         std::io::Write::flush(&mut std::io::stdout()).unwrap();
     }
 
     pub fn game_over(&self) -> bool {
-        self.winning_player().is_some()
+        self.winning_player().is_some() || self.tie()
     }
 
     /// Might be made private. Idea is that game receives input and decides what
     /// should happen.
-    pub fn mark_cell(&mut self, cell: usize, player: Player) {
+    fn mark_cell(&mut self, cell: usize, player: Player) {
         if self.board.cells[cell].player.is_none() {
             self.board.cells[cell].player = Some(player);
         }
@@ -95,6 +98,10 @@ impl TicTacToe {
         } else {
             None
         }
+    }
+
+    fn tie(&self) -> bool {
+        self.winning_player().is_none() && self.board.cells.iter().all(|cell| cell.player.is_some())
     }
 }
 
@@ -230,6 +237,33 @@ mod tests {
             game.mark_cell(1, Player::P2);
             let winning_player = game.winning_player();
             assert!(matches!(winning_player, None));
+        }
+    }
+
+    mod tie_tests {
+        use crate::game::*;
+
+        #[test]
+        fn returns_true_if_no_player_can_win() {
+            let mut game = TicTacToe::new();
+            game.mark_cell(0, Player::P1);
+            game.mark_cell(1, Player::P2);
+            game.mark_cell(2, Player::P1);
+            game.mark_cell(3, Player::P2);
+            game.mark_cell(4, Player::P2);
+            game.mark_cell(5, Player::P1);
+            game.mark_cell(6, Player::P1);
+            game.mark_cell(7, Player::P1);
+            game.mark_cell(8, Player::P2);
+            assert!(game.tie());
+        }
+
+        #[test]
+        fn returns_false_if_a_player_can_win() {
+            let mut game = TicTacToe::new();
+            game.mark_cell(0, Player::P1);
+            game.mark_cell(1, Player::P2);
+            assert!(!game.tie());
         }
     }
 }
