@@ -19,6 +19,10 @@ impl TicTacToe {
         }
     }
 
+    pub fn game_over(&self) -> bool {
+        self.winning_player().is_some()
+    }
+
     /// Might be made private. Idea is that game receives input and decides what
     /// should happen.
     pub fn mark_cell(&mut self, cell: usize, player: Player) {

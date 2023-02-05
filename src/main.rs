@@ -7,7 +7,7 @@ use crate::user_input::*;
 fn main() {
     let mut game = TicTacToe::new();
 
-    loop {
+    while !game.game_over() {
         println!("{}", game);
         if let Some(input) = get_user_input() {
             game.input(input)
