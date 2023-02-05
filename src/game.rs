@@ -19,6 +19,13 @@ impl TicTacToe {
         }
     }
 
+    pub fn render(&self) {
+        self.board.render();
+        if let Some(winner) = self.winning_player() {
+            println!("{} won!", winner);
+        }
+    }
+
     pub fn game_over(&self) -> bool {
         self.winning_player().is_some()
     }
@@ -88,12 +95,6 @@ impl TicTacToe {
     }
 }
 
-impl std::fmt::Display for TicTacToe {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{}", self.board)
-    }
-}
-
 struct Board {
     cells: [Cell; 9],
 }
@@ -109,29 +110,13 @@ impl Board {
         }
         return Board { cells };
     }
-}
 
-impl std::fmt::Display for Board {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(
-            f,
-            "{} | {} | {}",
-            self.cells[0], self.cells[1], self.cells[2]
-        )
-        .unwrap();
-        writeln!(f, "---------",).unwrap();
-        writeln!(
-            f,
-            "{} | {} | {}",
-            self.cells[3], self.cells[4], self.cells[5]
-        )
-        .unwrap();
-        writeln!(f, "---------",).unwrap();
-        writeln!(
-            f,
-            "{} | {} | {}",
-            self.cells[6], self.cells[7], self.cells[8]
-        )
+    pub fn render(&self) {
+        println!("{} | {} | {}", self.cells[0], self.cells[1], self.cells[2]);
+        println!("---------",);
+        println!("{} | {} | {}", self.cells[3], self.cells[4], self.cells[5]);
+        println!("---------",);
+        println!("{} | {} | {}", self.cells[6], self.cells[7], self.cells[8]);
     }
 }
 
