@@ -2,12 +2,14 @@ use crate::user_input::Input;
 
 pub struct TicTacToe {
     board: Board,
+    showed_title_screen: bool,
 }
 
 impl TicTacToe {
     pub fn new() -> Self {
         TicTacToe {
             board: Board::new(),
+            showed_title_screen: false,
         }
     }
 
@@ -19,7 +21,13 @@ impl TicTacToe {
         }
     }
 
-    pub fn render(&self) {
+    pub fn render(&mut self) {
+        if !self.showed_title_screen {
+            println!();
+            render_title_screen();
+            self.showed_title_screen = true;
+        }
+
         println!();
         self.board.render();
         if let Some(winner) = self.winning_player() {
@@ -41,7 +49,9 @@ impl TicTacToe {
     /// Might be made private. Idea is that game receives input and decides what
     /// should happen.
     pub fn mark_cell(&mut self, cell: usize, player: Player) {
-        self.board.cells[cell].player = Some(player);
+        if self.board.cells[cell].player.is_none() {
+            self.board.cells[cell].player = Some(player);
+        }
     }
 
     fn player_with_current_turn(&self) -> Player {
@@ -59,7 +69,7 @@ impl TicTacToe {
         }
     }
 
-    pub fn winning_player(&self) -> Option<Player> {
+    fn winning_player(&self) -> Option<Player> {
         fn player_won(board: &Board, player_to_check: Player) -> bool {
             let possible_winning_lines: [[usize; 3]; 8] = [
                 [0, 1, 2], // top row
@@ -145,6 +155,27 @@ impl std::fmt::Display for Player {
             Player::P2 => 2,
         };
         write!(f, "Player {}", player_number)
+    }
+}
+
+fn render_title_screen() {
+    let lines = vec![
+        r##"                    _..._                                           _..._                              .-'''-.                        "##,
+        r##"                 .-'_..._''.                                     .-'_..._''.                          '   _    \                      "##,
+        r##"         .--.  .' .'      '.\                                  .' .'      '.\                       /   /` '.   \      __.....__      "##,
+        r##"         |__| / .'                                            / .'                                 .   |     \  '  .-''         '.    "##,
+        r##"     .|  .--.. '                                .|           . '                                .| |   '      |  '/     .-''"'-.  `.  "##,
+        r##"   .' |_ |  || |             ,.----------.    .' |_     __   | |             ,.----------.    .' |_\    \     / //     /________\   \ "##,
+        r##" .'     ||  || |            //            \ .'     | .:--.'. | |            //            \ .'     |`.   ` ..' / |                  | "##,
+        r##"'--.  .-'|  |. '            \\            /'--.  .-'/ |   \ |. '            \\            /'--.  .-'   '-...-'`  \    .-------------' "##,
+        r##"   |  |  |  | \ '.          .`'----------'    |  |  `" __ | | \ '.          .`'----------'    |  |                \    '-.____...---. "##,
+        r##"   |  |  |__|  '. `._____.-'/                 |  |   .'.''| |  '. `._____.-'/                 |  |                 `.             .'  "##,
+        r##"   |  '.'        `-.______ /                  |  '.'/ /   | |_   `-.______ /                  |  '.'                 `''-...... -'    "##,
+        r##"   |   /                  `                   |   / \ \._,\ '/            `                   |   /                                   "##,
+        r##"   `'-'                                       `'-'   `--'  `"                                 `'-'                                    "##,
+    ];
+    for line in lines.iter() {
+        println!("{}", line);
     }
 }
 
