@@ -59,21 +59,6 @@ impl TicTacToe {
         }
     }
 
-    pub fn is_players_turn(&self, player: Player) -> bool {
-        let filled_cells = self
-            .board
-            .cells
-            .iter()
-            .map(|cell| cell.player)
-            .filter_map(std::convert::identity)
-            .count();
-        let is_p1_turn = (filled_cells % 2) == 0;
-        match player {
-            Player::P1 => is_p1_turn,
-            Player::P2 => !is_p1_turn,
-        }
-    }
-
     pub fn winning_player(&self) -> Option<Player> {
         fn player_won(board: &Board, player_to_check: Player) -> bool {
             let possible_winning_lines: [[usize; 3]; 8] = [
@@ -147,7 +132,7 @@ impl std::fmt::Display for Cell {
     }
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Player {
     P1,
     P2,
@@ -165,22 +150,22 @@ impl std::fmt::Display for Player {
 
 #[cfg(test)]
 mod tests {
-    mod is_players_turn_tests {
+    mod player_with_current_turn_tests {
         use crate::game::*;
 
         #[test]
-        fn returns_true_when_it_is_the_passed_players_turn() {
+        fn returns_player1_when_it_is_player1s_turn() {
             let mut game = TicTacToe::new();
             game.mark_cell(0, Player::P1);
             game.mark_cell(1, Player::P2);
-            assert!(game.is_players_turn(Player::P1));
+            assert_eq!(game.player_with_current_turn(), Player::P1);
         }
 
         #[test]
-        fn returns_false_when_it_is_not_the_passed_players_turn() {
+        fn returns_player2_when_it_is_player2s_turn() {
             let mut game = TicTacToe::new();
             game.mark_cell(0, Player::P1);
-            assert!(game.is_players_turn(Player::P2));
+            assert_eq!(game.player_with_current_turn(), Player::P2);
         }
     }
 
