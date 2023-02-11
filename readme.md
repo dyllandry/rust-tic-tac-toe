@@ -1,5 +1,7 @@
 # Rust Tic-tac-toe
 
+![tic-tac-toe game running in a terminal](/screenshot.png)
+
 ## test modules with "tests" in the name
 
 I think bug in vim plugin vim-test where tests in nested test modules aren't run by `:TestNearest` unless they are in a module with "tests" in the name.
